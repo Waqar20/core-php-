@@ -1,0 +1,208 @@
+<?php
+///////////////// incude connection file with help of require_once method here !!
+require_once('connection.php');
+
+if (isset($_POST["action"]) &&  $_POST["action"] == 'create_planet')
+{
+// print_r($_FILES); die();
+if (isset($_POST["name"]) && isset($_POST["persons"]) && isset($_POST["location"]) && isset($_POST["price"]))
+{
+$name =$_POST["name"];
+$persons=$_POST["persons"];
+$location=$_POST["location"];
+$price=$_POST["price"];
+$query="INSERT INTO `planet`(`name`, `persons`, `location`, `price`) VALUES ('$name','$persons','$location',$price)";
+$result=mysqli_query($con,$query);
+
+if ($result) {
+///////////get last id here
+ $last_id = $con->insert_id;
+
+ if (isset($_FILES["file"]['name'])) {
+    //  print_r($_FILES["file"]);
+ 
+     
+//  $countfiles = count($_FILES['file']['name']);
+//   
+  //echo $countfiles;die();
+// for($i=0;$i<$countfiles;$i++){
+$filename = $_FILES['file']['name'];
+$image='upload/'.$filename;
+// echo json_encode($image);
+// die();
+// Upload file work here
+//move_uploaded_file($_FILES['file']['tmp_name'][$i],$image);
+move_uploaded_file($_FILES['file']['tmp_name'],$image);
+$query="INSERT INTO images (p_id,image) VALUES ( '".$last_id."', '".$image."')";
+$con->query($query) or die("query error");  	
+ //}
+
+}
+ else{
+$countfiles = count($_FILES);
+for($i=0;$i<$countfiles;$i++){
+$filename = $_FILES["file$i"]['name'];
+$image='upload/'.$filename;
+// Upload file work here
+move_uploaded_file($_FILES["file$i"]['tmp_name'],$image);
+$query="INSERT INTO images (p_id,image) VALUES ( '".$last_id."', '".$image."')";
+$con->query($query) or die("query error");
+}
+
+
+/////////insert multiple images here 
+
+}
+$return_data= array('status' => true ,
+					'messege'=>'Planet has been created'
+					 );
+}
+else{
+$return_data= array('status' => false ,
+					'messege'=>'Data Insertion error!!'
+					 );
+}
+	}
+else{
+$return_data= array('status' => false ,
+					'messege'=>'All field are required!!'
+					 );
+	}
+}elseif (isset($_POST["action"]) &&  $_POST["action"]=='edit_planet')
+{
+// echo "<pre>";
+// print_r($_FILES);die;
+if (isset($_POST["name"]) && isset($_POST["persons"]) && isset($_POST["location"]) && isset($_POST["price"]) && isset($_POST["id"]) && isset($_FILES))
+{
+$id=$_POST['id'];
+$name =$_POST["name"];
+$persons=$_POST["persons"];
+$location=$_POST["location"];
+$price=$_POST["price"];
+$query="UPDATE `planet` SET `name`='$name',`persons`='$persons',`location`='$location',`price`=$price WHERE id =$id";
+$result=mysqli_query($con,$query);
+
+if ($result) {
+/////////get last id here
+
+
+$qr="DELETE FROM `images` WHERE p_id =$id";
+
+$con->query($qr);			
+
+ if (isset($_FILES["file"]['name'])) {
+  $countfiles = count($_FILES['file']['name']);
+  //echo $countfiles;die();
+for($i=0;$i<$countfiles;$i++){
+$filename = $_FILES['file']['name'][$i];
+$image='upload/'.$filename;
+// Upload file work here
+move_uploaded_file($_FILES['file']['tmp_name'][$i],$image);
+$query="INSERT INTO images (p_id,image) VALUES ( '".$id."', '".$image."')";
+$con->query($query) or die("query error");  	
+ }
+
+}
+ else{
+$countfiles = count($_FILES);
+for($i=0;$i<$countfiles;$i++){
+$filename = $_FILES["file$i"]['name'];
+$image='upload/'.$filename;
+// Upload file work here
+move_uploaded_file($_FILES["file$i"]['tmp_name'],$image);
+$query="INSERT INTO images (p_id,image) VALUES ( '".$id."', '".$image."')";
+$con->query($query) or die("query error");
+}
+
+}
+$return_data= array('status' => true ,
+					'messege'=>'Data UPDATE SUCCESS !'
+					 );
+}
+else{
+$return_data= array('status' => false ,
+					'messege'=>'Data UPDATETION error!!'
+					 );
+}
+	}
+else{
+$return_data= array('status' => false ,
+					'messege'=>'All field are required!!'
+					 );
+	}
+
+}
+
+///////////////////////////////////////delete planet work here
+elseif (isset($_POST["action"]) &&  $_POST["action"] == 'del_record'){
+
+
+$id = $_POST["id"];
+$query="delete from planet where id ='$id'";
+
+	$con->query($query);
+	
+$result=mysqli_affected_rows($con);
+
+
+if($result){
+
+$query="SELECT `image` FROM `images` WHERE p_id = $id";
+$res=mysqli_query($con,$query);
+while ($row=mysqli_fetch_array($res)){
+$image= $row['image'];
+unlink($image);
+}
+
+$qr="delete from images where p_id=$id";
+$con->query($qr);
+$return_data = array(
+'status' => true ,
+'message' => 'Data deleted '
+);
+
+}
+else{
+
+$return_data = array(
+'status' => false,
+'message' => 'not delete' 
+);
+
+}
+
+
+
+
+
+
+}
+else {
+$return_data = array(
+'status' => false,
+'message' => 'please select action=create_planet or edit_planet del_record '
+ );
+}
+
+echo json_encode($return_data);
+
+
+/*   
+	//post man image work and first image work  
+$last_id = $con->insert_id;
+ $countfiles = count($_FILES['file']['name']);
+
+		for($i=0;$i<$countfiles;$i++){
+		 $filename = $_FILES['file']['name'][$i];
+		 $image='upload/'.$filename;
+// Upload file work here
+	 move_uploaded_file($_FILES['file']['tmp_name'][$i],$image);  	
+/////////insert multiple images here 
+$query="INSERT INTO images (p_id,image) VALUES ( '".$last_id."', '".$image."')";
+	$con->query($query) or die("query error");
+}
+
+*/
+
+
+?>
