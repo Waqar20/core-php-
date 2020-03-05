@@ -1,7 +1,54 @@
 <?php
+include 'function.php';
 
-require'process/view_planet.php';
+// echo api_host_dir("view_planet.php");
+
+$curl = curl_init();
+curl_setopt($curl, CURLOPT_PROXY, '');
+curl_setopt_array($curl, array(
+  CURLOPT_URL => api_host_dir("user.php"),
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "POST",
+  CURLOPT_POSTFIELDS => "action=view_user",
+  CURLOPT_HTTPHEADER => array(
+    "Content-Type: application/x-www-form-urlencoded"
+  ),
+));
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+ 
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+
+    $posts_data = json_decode($response);
+
+    if ($posts_data->status) {
+      
+       $row = $posts_data->user;
+            if(!empty($posts_data->data)){
+              $images = $posts_data->data;
+            }
+    }
+    else{
+
+      // print_r($posts_data);die();
+
+         header('location:javascript://history.go');die();
+    }
+}
+
 ?>
+
 
 <!DOCTYPE html>
 <!-- saved from url=(0090)file:///C:/users/Ali%20Haider/Dropbox/xampp/htdocs/Sublime/opd/admin/adminpanel/index.html -->
@@ -47,19 +94,17 @@ require'process/view_planet.php';
                     <div class="col-md-12">
                         <div class="panel widget">
                             <div class="panel-heading vd_bg-grey">
-                                <h3 class="panel-title"> <span class="menu-icon"> <i class="fa fa-dot-circle-o"></i> </span> Planet Details </h3>
+                                <h3 class="panel-title"> <span class="menu-icon"> <i class="fa fa-dot-circle-o"></i> </span> User Details </h3>
                             </div>
                             <div class="panel-body table-responsive">
                                 <table id="data-tables" class="table table-hover">
                                     <thead>
                                     <tr>
-                                        <th>ID</th>
-                                         <th>Image</th>
-
+                                        <th>Id</th>
                                         <th>Name</th>
-                                        <th>No of Persons</th>
-                                        <th>Location</th>
-                                        <th>Price</th>
+                                        <th>Email</th>
+                                        <th>Contact</th>
+                                        <th>Password</th>
                                       
                                         <th>Manage</th>
                                     </tr>
@@ -67,22 +112,19 @@ require'process/view_planet.php';
                                     <tbody>
                                  <?php
                                  foreach ($row as  $value) {
-                                  $img = json_decode($value->img);
+                                  
                                  
                                  ?>
-            
-      <tr>
-        <td class="center"> <?php echo $value->id; ?></td>
-        <td class="center">
-          <img src="api/upload/<?php echo $img['0'] ?>" width="80" 
-          height="60" /></td>
-          <td class="center"> <?php echo $value->name; ?></td>
-          <td class="center"> <?php echo $value->persons; ?></td>
-          <td class="center"><?php echo $value->location; ?></td>
-          <td class="center"><?php echo $value->price; ?></td>
-       
-               <td class="menu-action"><a href="single_planet.php?id=<?php echo $value->id;?>" data-original-title="view" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-green vd_green"> <i class="fa fa-eye"></i> </a> 
-                <a href="edit_planet.php?id=<?php echo $value->id; ?>" data-original-title="edit" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-yellow vd_yellow"> <i class="fa fa-pencil"></i> </a> <a href="javascript:;" onclick="deleted('process/delete_planet.php?id=<?php echo $value->id; ?>');" data-original-title="delete" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-red vd_red"> <i class="fa fa-times"></i> </a>
+                                          
+                                    <tr>
+                                        <td class="center"> <?php echo $value->id; ?></td>
+                                        <td class="center"> <?php echo $value->name; ?></td>
+                                        <td class="center"> <?php echo $value->email; ?></td>
+                                        <td class="center"><?php echo $value->contact; ?></td>
+                                        <td class="center"><?php echo $value->password; ?></td>
+
+                                       
+                                        <td class="menu-action"><a href="single_user.php?id=<?php echo $value->id;?>" data-original-title="view" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-green vd_green"> <i class="fa fa-eye"></i> </a> <a href="edit_user.php?id=<?php echo $value->id; ?>" data-original-title="edit" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-yellow vd_yellow"> <i class="fa fa-pencil"></i> </a> <a href="javascript:;" onclick="deleted('process/delete_user.php?id=<?php echo $value->id; ?>');" data-original-title="delete" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-red vd_red"> <i class="fa fa-times"></i> </a>
 
                                     </td></tr>
                                   

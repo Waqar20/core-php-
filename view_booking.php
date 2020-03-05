@@ -1,7 +1,55 @@
 <?php
+include 'function.php';
 
-require'process/view_planet.php';
+// echo api_host_dir("view_planet.php");
+
+$curl = curl_init();
+curl_setopt($curl, CURLOPT_PROXY, '');
+curl_setopt_array($curl, array(
+  CURLOPT_URL => api_host_dir("booking_planet.php"),
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "POST",
+  CURLOPT_POSTFIELDS => "action=view_booking",
+  CURLOPT_HTTPHEADER => array(
+    "Content-Type: application/x-www-form-urlencoded"
+  ),
+));
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+// print_r($response);die();
+ 
+curl_close($curl);
+// print_r($response); die();
+if ($err) {
+  echo "cURL Error #:" . $err;
+
+} else {
+ // print_r($response);die();
+    $posts_data = json_decode($response);
+
+    if ($posts_data) {
+      
+       $row = $posts_data->user;
+            if(!empty($posts_data->data)){
+              $images = $posts_data->data;
+            }
+    }
+    else{
+
+      // print_r($posts_data);die();
+
+     //    header('location:javascript://history.go');die();
+    }
+}
+
 ?>
+
 
 <!DOCTYPE html>
 <!-- saved from url=(0090)file:///C:/users/Ali%20Haider/Dropbox/xampp/htdocs/Sublime/opd/admin/adminpanel/index.html -->
@@ -27,19 +75,14 @@ require'process/view_planet.php';
               <ul class="breadcrumb">
                 <li class="active">Planets</li>
               </ul>
-         <!--      <div class="vd_panel-menu hidden-sm hidden-xs" data-intro="<strong>Expand Control</strong><br/>To expand content page horizontally, vertically, or Both. If you just need one button just simply remove the other button code." data-step=5  data-position="left">
-    <div data-action="remove-navbar" data-original-title="Remove Navigation Bar Toggle" data-toggle="tooltip" data-placement="bottom" class="remove-navbar-button menu"> <i class="fa fa-arrows-h"></i> </div>
-      <div data-action="remove-header" data-original-title="Remove Top Menu Toggle" data-toggle="tooltip" data-placement="bottom" class="remove-header-button menu"> <i class="fa fa-arrows-v"></i> </div>
-      <div data-action="fullscreen" data-original-title="Remove Navigation Bar and Top Menu Toggle" data-toggle="tooltip" data-placement="bottom" class="fullscreen-button menu"> <i class="glyphicon glyphicon-fullscreen"></i> </div>
-      
-</div> -->
+        
  
             </div>
           </div>
           <!-- vd_head-section -->
           <div class="vd_title-section clearfix">
             <div class="vd_panel-header">
-              <h1>Planets</h1></div>
+              <h1>Bookings</h1></div>
           </div>
  
             <div class="vd_content-section clearfix">
@@ -47,42 +90,48 @@ require'process/view_planet.php';
                     <div class="col-md-12">
                         <div class="panel widget">
                             <div class="panel-heading vd_bg-grey">
-                                <h3 class="panel-title"> <span class="menu-icon"> <i class="fa fa-dot-circle-o"></i> </span> Planet Details </h3>
+                                <h3 class="panel-title"> <span class="menu-icon"> <i class="fa fa-dot-circle-o"></i> </span> User Details </h3>
                             </div>
                             <div class="panel-body table-responsive">
                                 <table id="data-tables" class="table table-hover">
                                     <thead>
                                     <tr>
-                                        <th>ID</th>
-                                         <th>Image</th>
-
+                                        <th>Id</th>
                                         <th>Name</th>
                                         <th>No of Persons</th>
-                                        <th>Location</th>
-                                        <th>Price</th>
-                                      
+                                        <th>theme</th>
+                                        <th>Date</th>
+                                        <th>Sound</th>
+                                        <th>Light</th>             
+                                       <th>Other Requirements</th>                            
                                         <th>Manage</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                  <?php
                                  foreach ($row as  $value) {
-                                  $img = json_decode($value->img);
+                                  
                                  
                                  ?>
-            
-      <tr>
-        <td class="center"> <?php echo $value->id; ?></td>
-        <td class="center">
-          <img src="api/upload/<?php echo $img['0'] ?>" width="80" 
-          height="60" /></td>
-          <td class="center"> <?php echo $value->name; ?></td>
-          <td class="center"> <?php echo $value->persons; ?></td>
-          <td class="center"><?php echo $value->location; ?></td>
-          <td class="center"><?php echo $value->price; ?></td>
-       
-               <td class="menu-action"><a href="single_planet.php?id=<?php echo $value->id;?>" data-original-title="view" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-green vd_green"> <i class="fa fa-eye"></i> </a> 
-                <a href="edit_planet.php?id=<?php echo $value->id; ?>" data-original-title="edit" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-yellow vd_yellow"> <i class="fa fa-pencil"></i> </a> <a href="javascript:;" onclick="deleted('process/delete_planet.php?id=<?php echo $value->id; ?>');" data-original-title="delete" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-red vd_red"> <i class="fa fa-times"></i> </a>
+                                          
+                                    <tr>
+
+                                        <td class="center"> <?php echo $value->id; ?></td>
+                                        <td class="center"> <?php echo $value->name; ?></td>
+                                        <td class="center"> <?php echo $value->num_person; ?></td>
+                                        <td class="center"><?php echo $value->event_theme; ?></td>
+                                        <td class="center"><?php echo $value->date; ?></td>
+                                         <th><?php echo $value->sound; ?></th>
+                                        <th><?php echo $value->light; ?></th>  
+                                        <th><?php echo $value->other_requirement; ?></th>  
+
+                                       
+                      <td class="menu-action">
+  <a href="#" data-original-title="view" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-green vd_green"> 
+    <i class="fa fa-check"></i> </a> 
+   
+      <a href="javascript:;" onclick="deleted('process/delete_user.php?id=<?php echo $value->id; ?>');" data-original-title="delete" data-toggle="tooltip" data-placement="top" class="btn menu-icon vd_bd-red vd_red"> 
+        <i class="fa fa-times"></i> </a>
 
                                     </td></tr>
                                   
